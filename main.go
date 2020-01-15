@@ -100,6 +100,9 @@ func ServeRequest(w http.ResponseWriter, r *http.Request) {
 
 func ServeProof(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "%s", proofText)
+	clientIP := getClientIPAddress(r)
+	clientUA := r.UserAgent()
+	log.LogInfo(fmt.Sprintf("%s %s", clientIP, clientUA))
 }
 
 func inRange(r ipRange, ipAddress net.IP) bool {
