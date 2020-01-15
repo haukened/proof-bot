@@ -39,7 +39,7 @@ func (e Entry) Print() string {
 	if e.PrivateIP {
 		return fmt.Sprintf("IP: %s User-Agent: %s", e.IpAddress, e.UserAgent)
 	} else {
-		return fmt.Sprintf("IP: %s Country: %s Region: %s City: %s Latitude: %.4f Longitude: %.4f ISP: %s User-Agent: %s", e.Timestamp.Format("2006-01-02T15:04:05-0700"), e.IpAddress, e.Country, e.Region, e.City, e.Latitude, e.Longitude, e.ISP, e.UserAgent)
+		return fmt.Sprintf("IP: %s Country: %s Region: %s City: %s Latitude: %.4f Longitude: %.4f ISP: %s User-Agent: %s", e.IpAddress, e.Country, e.Region, e.City, e.Latitude, e.Longitude, e.ISP, e.UserAgent)
 	}
 }
 
