@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"io/ioutil"
 	"net"
 	"net/http"
 	"os"
@@ -41,6 +42,7 @@ var privateRanges = []ipRange{
 
 var target string
 var log loggy.Logger
+var proofText string
 
 func init() {
 	// create the options struct and set globals
@@ -68,16 +70,25 @@ func init() {
 	// create the logger
 	log = loggy.NewLogger(opts)
 
+	// get the proof (keybase.txt)
+	b, err := ioutil.ReadFile("/home/keybase/proof/keybase.txt")
+	if err != nil {
+		log.LogPanic("Unable to read proof file from /home/keybase/proof/keybase.txt\nExiting...")
+	}
+	proofText = string(b)
+
 	// ensure that the redirect url was provided
 	target = os.Getenv("PROOF_TARGET_URL")
 	if target == "" {
-		fmt.Fprintf(os.Stderr, "Unable to find PROOF_TARGET_URL in environment. Exiting.\n")
+		log.LogPanic("Unable to find PROOF_TARGET_URL in environment. Exiting.")
 		os.Exit(1)
 	}
 }
 
 func main() {
 	http.HandleFunc("/", ServeRequest)
+	http.HandleFunc("/keybase.txt", ServeProof)
+	http.HandleFunc("/.well-known/keybase.txt", ServeProof)
 	http.ListenAndServe(":8080", nil)
 }
 
@@ -86,6 +97,10 @@ func ServeRequest(w http.ResponseWriter, r *http.Request) {
 	clientIP := getClientIPAddress(r)
 	clientUA := r.UserAgent()
 	log.LogInfo(fmt.Sprintf("%s %s", clientIP, clientUA))
+}
+
+func ServeProof(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "%s", proofText)
 }
 
 func inRange(r ipRange, ipAddress net.IP) bool {
