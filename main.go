@@ -71,8 +71,7 @@ func init() {
 	// ensure that the redirect url was provided
 	target = os.Getenv("PROOF_TARGET_URL")
 	if target == "" {
-		fmt.Fprintf(os.Stderr, "Unable to find PROOF_TARGET_URL in environment. Exiting.\n")
-		os.Exit(1)
+		log.LogPanic("Unable to find PROOF_TARGET_URL in environment. Exiting.\n")
 	}
 }
 
