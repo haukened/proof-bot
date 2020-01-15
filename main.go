@@ -81,7 +81,6 @@ func init() {
 	target = os.Getenv("PROOF_TARGET_URL")
 	if target == "" {
 		log.LogPanic("Unable to find PROOF_TARGET_URL in environment. Exiting.")
-		os.Exit(1)
 	}
 }
 
