@@ -40,9 +40,12 @@ var privateRanges = []ipRange{
 	},
 }
 
-var target string
-var log loggy.Logger
-var proofText string
+var (
+	target    string
+	log       loggy.Logger
+	proofText string
+	DbEnabled bool
+)
 
 func init() {
 	// create the options struct and set globals
@@ -82,6 +85,13 @@ func init() {
 	if target == "" {
 		log.LogPanic("Unable to find PROOF_TARGET_URL in environment. Exiting.")
 	}
+
+	// check if database is enabled
+	db_env := os.Getenv("PROOF_DB_ENABLE")
+	if db_env == "yes" || db_env == "true" || db_env == "1" {
+		DbEnabled = true
+		InitDB()
+	}
 }
 
 func main() {
@@ -93,16 +103,26 @@ func main() {
 
 func ServeRequest(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, target, 302)
-	clientIP := getClientIPAddress(r)
-	clientUA := r.UserAgent()
-	log.LogInfo(fmt.Sprintf("%s %s", clientIP, clientUA))
+	data, err := CreateEntry(r)
+	if err != nil {
+		log.LogError(fmt.Sprintf("%+v", err))
+		return
+	} else if DbEnabled {
+		data.Save()
+	}
+	log.LogInfo(data.Print())
 }
 
 func ServeProof(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "%s", proofText)
-	clientIP := getClientIPAddress(r)
-	clientUA := r.UserAgent()
-	log.LogInfo(fmt.Sprintf("%s %s", clientIP, clientUA))
+	data, err := CreateEntry(r)
+	if err != nil {
+		log.LogError(fmt.Sprintf("%+v", err))
+		return
+	} else if DbEnabled {
+		data.Save()
+	}
+	log.LogInfo(data.Print())
 }
 
 func inRange(r ipRange, ipAddress net.IP) bool {
