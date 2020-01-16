@@ -103,14 +103,6 @@ func main() {
 
 func ServeRequest(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, target, 302)
-	data, err := CreateEntry(r)
-	if err != nil {
-		log.LogError(fmt.Sprintf("%+v", err))
-		return
-	} else if DbEnabled {
-		data.Save()
-	}
-	log.LogInfo(data.Print())
 }
 
 func ServeProof(w http.ResponseWriter, r *http.Request) {
